@@ -389,7 +389,7 @@ dev.off()
 #remove duplicate values   
 Distinct.df_genes <- distinct(df_plotting, Gene.ID, .keep_all = TRUE)
 
-#ANOVA
+#ANOVA. can check each factor independetly 
 res.aov <- aov(GC ~ type, data = Distinct.df_genes)
 summary(res.aov)
 
