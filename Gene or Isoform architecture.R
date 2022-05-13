@@ -4,6 +4,7 @@ library(dplyr)
 library(reshape2)
 library(tibble)
 library(tidyr)
+library(GenomicFeatures)
 
 ############
 #GENE / Isoform architecture  
@@ -228,8 +229,172 @@ Write.csv(LFC_K_merged, "LFC_K_merged_cluster.csv")
 ##################
 #Add Gene or Isoform architecture
 ##################
-  
- 
-  
 
+#read in GC content per gene info here
+GC <- read.csv("/Users/yairp/Documents/Ph.D/RNA_degradation_study/Deg_const/GC_gene_type_biomart_all.csv", header=T)
+
+# to remove the dots after the ENSG 
+LFC_K_merged$Gene.ID <- sub("\\.[^.]*$", "", LFC_K_merged$Gene.ID)
+
+# merge GC and LFC data togehter  
+LFC_K_norm_GC <- merge(LFC_K_merged,GC, by.x="Gene.ID", by.y="Gene.ID", all.x=TRUE)
+  
+#Use basic GTF to pull out length of gene features of interest   
+# Make the txdb
+txs <- makeTxDbFromGFF("~/Documents/Ph.D/Genomes/gencode.v31.basic.annotation.gtf", format="gtf")
+txLengths <- transcriptLengths(txs, with.cds_len=TRUE, with.utr5_len=TRUE, with.utr3_len=TRUE)
+lengths <- data.frame(txLengths$tx_name, txLengths$tx_len)
+gene_lengths <- data.frame(txLengths$gene_id, txLengths$tx_len, txLengths$cds_len, txLengths$utr5_len, txLengths$utr3_len)
+
+gene_lengths$txLengths.gene_id <- sub("\\.[^.]*$", "", gene_lengths$txLengths.gene_id) # to remove the dots after the ENSG 
+
+#filter out zero values  
+gene_lengths <- filter(gene_lengths, txLengths.utr5_len > 0 & txLengths.utr3_len > 0) 
+
+#take the median value for UTS AND CDS
+M3_median <-gene_lengths %>%                              # Specify data frame
+  group_by(txLengths.gene_id) %>%                         # Specify group indicator
+  summarise_at(vars(txLengths.utr5_len),                  # Specify column
+               list("UTR5" = median))
+
+M5_median <-gene_lengths %>%                              # Specify data frame
+  group_by(txLengths.gene_id) %>%                         # Specify group indicator
+  summarise_at(vars(txLengths.utr3_len),                  # Specify column
+               list("UTR3" = median))
+
+#add CDS lengths Also
+CDS_median <-gene_lengths %>%                             # Specify data frame
+  group_by(txLengths.gene_id) %>%                         # Specify group indicator
+  summarise_at(vars(txLengths.cds_len),                   # Specify column
+               list("CDS" = median))
+
+#combine data sets together
+UTR_median <- merge(M3_median,M5_median, by.x='txLengths.gene_id', by.y= 'txLengths.gene_id', all.x=TRUE)
+df_plotting <- merge(df_median,UTR_median, by.x='Gene.ID', by.y= 'txLengths.gene_id', all.x=TRUE)
+df_plotting <- merge(df_plotting,CDS_median, by.x='Gene.ID', by.y= 'txLengths.gene_id', all.x=TRUE)
+df_plotting <- merge(df_plotting,ln_median, by.x='Gene.ID', by.y= 'gene', all.x=TRUE) 
+  
+df_plotting$type <- factor(df_plotting$type , levels=c("Up", "Stable", "Slow", "Fast")) # order the type
+
+# Now we can plot 
+#boxplot GC
+pdf("GC content and decay.pdf", width = 6, height=3)
+ggplot(df_plotting) +
+  geom_boxplot(aes(type, GC, fill=type)) +
+  ylab("GC (%)") +
+  xlab(NULL) +
+  labs(title = "%GC content and decay" ) + 
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=10),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()) +
+  theme(legend.title = element_blank())
+dev.off()
+
+#boxplot 3UTR
+pdf("Updated_medain_UTRs_lengths3'UTR length and decay.pdf", width = 6, height=3)
+ggplot(df_plotting) +
+  geom_boxplot(aes(type, UTR3, fill=type),,  outlier.shape = NA) +
+  ylim(0,6000) +
+  ylab("3'UTR (bp)") +
+  xlab(NULL) +
+  labs(title = "3'UTR length and decay" ) + 
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=10),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()) +
+  theme(legend.title = element_blank())
+dev.off()
+
+#boxplot 5UTR
+pdf("Updated_medain_UTRs_lengths_5'UTR length and decay.pdf", width = 6, height=3)
+ggplot(df_plotting) +
+  geom_boxplot(aes(type, UTR5, fill=type),  outlier.shape = NA) +
+  ylim(0,600) +
+  ylab("5'UTR (bp)") +
+  xlab(NULL) +
+  labs(title = "5'UTR length and decay" ) + 
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=10),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()) +
+  theme(legend.title = element_blank())
+dev.off()
+
+#boxplot CDS 
+#Wont bother with this as its not in the figure
+pdf("CDS length and decay.pdf", width = 6, height=3)
+ggplot(df_plotting) +
+  geom_boxplot(aes(type, CDS, fill=type),  outlier.shape = NA) +
+  ylim(0,4000) +
+  ylab("CDS (bp)") +
+  xlab(NULL) +
+  labs(title = "CDS length and decay" ) + 
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=10),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()) +
+  theme(legend.title = element_blank())
+dev.off()
+
+#boxplot Total Gene length
+pdf("Updated_medain_UTRs_lengths_Total Gene length and decay.pdf", width = 6, height=3)
+ggplot(df_plotting) +
+  geom_boxplot(aes(type, median, fill=type), outlier.shape = NA) +
+  ylim(0,10000) +
+  ylab("Total Gene length (bp)") +
+  xlab(NULL) +
+  #geom_signif(map_signif_level = TRUE) +
+  labs(title = "Total Gene length and decay" ) + 
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=10),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()) +
+  theme(legend.title = element_blank())
+dev.off()
+
+  
+##############
+#Hypothesis testing 
+##############
+  
+#remove duplicate values   
+Distinct.df_genes <- distinct(df_plotting, Gene.ID, .keep_all = TRUE)
+
+#ANOVA
+res.aov <- aov(GC ~ type, data = Distinct.df_genes)
+summary(res.aov)
+
+#PostHoc test
+TukeyHSD(res.aov, which = "type")  
+
+#All summary stats 
+tapply(Distinct.df_genes$CDS, Distinct.df_genes$type, summary)
+
+  
 
