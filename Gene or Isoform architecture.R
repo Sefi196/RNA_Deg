@@ -146,9 +146,52 @@ kClustcentroids_norm <- kClustcentroids_flip %>%
          logFC_6 = kClustcentroids_flip$logFC_6-0.611814283,
          logFC_8 = kClustcentroids_flip$logFC_8-0.738108935)
 
+#Set col names 
+setDT(kClustcentroids_norm, keep.rownames = TRUE)[]
+names(kClustcentroids_norm)[1] <- "cluster"
 
+#rearange for ploting
+Kmolten_norm <- melt(kClustcentroids_norm)
+colnames(Kmolten_norm) <- c('cluster','LFC','value')
 
+#Add cluster IDs
+Kmolten_norm <- Kmolten_norm %>% mutate(Clusters =
+                                          case_when(cluster == 1  ~ "Slow",
+                                                    cluster == 2  ~ "Up",
+                                                    cluster == 3  ~ "Stable",
+                                                    cluster == 4  ~ "Fast"))
 
+Kmolten_norm$Clusters <- factor(Kmolten_norm$Clusters , levels=c("Up", "Stable", "Slow", "Fast")) # order the type
+
+#Add time 
+Kmolten_norm  <- Kmolten_norm %>% mutate(Time =
+                                           case_when(LFC == "logFC_0.5"  ~ 0.5,
+                                                     LFC == "logFC_0"  ~ 0,
+                                                     LFC == "logFC_1" ~ 1,
+                                                     LFC == "logFC_3" ~ 3,
+                                                     LFC == "logFC_6" ~ 6,
+                                                     LFC == "logFC_8" ~ 8))
+#plot scaled centroids 
+pdf("Cluster.Kmeans_scaled.pdf", width = 6, height=4)
+p2 <- ggplot(Kmolten_norm, aes(x=Time,y=value, group=Clusters, colour=as.factor(Clusters))) + 
+  geom_point() + 
+  geom_line() +
+  xlab("Time (h)") +
+  ylab("Log2 Fold Change relative to 0 hours") +
+  labs(title= "Centroids of K means clusters - Transcripts", color = "Cluster") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=10),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank())
+print(p2)
+dev.off()
+
+# Plot LFC of each graph in each cluster 
 
 
 
