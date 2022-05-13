@@ -192,6 +192,44 @@ print(p2)
 dev.off()
 
 # Plot LFC of each graph in each cluster 
+names(kCluster.df)[1] <- "Gene.ID"
+names(kCluster.df)[2] <- "Cluster"
 
+# preprare LFC data 
+LFC <- Gene_names(LFC)
+
+LFC1 <- LFC %>% 
+  gather(XX, LogFC, -Gene.ID)
+head(LFC1)
+
+#merge logfold change with Cluster data
+LFC_K_merged <- merge(LFC1,kCluster.df, by.x='Gene.ID', by.y= 'Gene.ID', all.x=TRUE)
+
+#Add time
+LFC_K_merged <- LFC_K_merged %>% mutate(Time =
+                                      case_when(XX == "logFC_0.5"  ~ 30,
+                                                XX == "logFC_0"  ~ 0,
+                                                XX == "logFC_1" ~ 60,
+                                                XX == "logFC_3" ~ 180,
+                                                XX == "logFC_6" ~ 360,
+                                                XX == "logFC_8" ~ 480))
+
+#Plot all genes LFC and facet by cluster. 
+(#can add cnetroid value to each cluser also)
+p3 <- ggplot(LFC_K_merged, aes(fill = Gene.ID, x = Time, y = LogFC)) + 
+  theme_bw() +
+  geom_line(colour = 'grey', size=0.5) +
+  geom_abline(intercept = 0, slope = 0, colour = 'red', linetype = 'dashed', size=0.5) +
+  facet_grid('Cluster') 
+
+#Save data   
+Write.csv(LFC_K_merged, "LFC_K_merged_cluster.csv")
+  
+##################
+#Add Gene or Isoform architecture
+##################
+  
+ 
+  
 
 
