@@ -52,7 +52,6 @@ res_T_0h_vs_3_4 <- as.data.frame(results(dds, contrast = c("Time","3_4","0")))
 res_T_0h_vs_6 <- as.data.frame(results(dds, contrast = c("Time","6","0")))
 res_T_0h_vs_8 <- as.data.frame(results(dds, contrast = c("Time","8","0")))
 
-
 ############
 #Cluster based on logFC 
 ############
@@ -76,7 +75,6 @@ res_T_0h_vs_1 <- Gene_names(res_T_0h_vs_1)
 res_T_0h_vs_3_4 <- Gene_names(res_T_0h_vs_3_4)
 res_T_0h_vs_6 <- Gene_names(res_T_0h_vs_6)
 res_T_0h_vs_8 <- Gene_names(res_T_0h_vs_8)
-
 
 names(res_T_0h_vs_0.5)[3] <- "logFC_0.5"
 names(res_T_0h_vs_1)[3] <- "logFC_1"
@@ -110,7 +108,6 @@ Kmean_LFC$size
 kClusters <- Kmean_LFC$cluster
 kCluster.df <- Gene_names(kClusters) 
 
-
 #Now we can calculate the cluster ‘cores’ aka centroids:
 # function to find centroid in cluster i
 clust.centroid = function(i, dat, clusters) {
@@ -132,3 +129,26 @@ p1 <- ggplot(Kmolten, aes(x=sample,y=value, group=cluster, colour=as.factor(clus
   ylab("Expression") +
   labs(title= "Cluster Expression by Time",color = "Cluster")
 p1
+
+##subtract the centroid values from the Log fold change data to plot a scaled centroid plot. 
+#this is purely to scale the data relative to the stable cluster (that shows apparent up regulation). 
+#For all the downstream analysis we use data that has not been scaled 
+
+#Flip centroid data frame 
+kClustcentroids_flip <- as.data.frame(t(kClustcentroids))
+
+#subtract data 
+kClustcentroids_norm <- kClustcentroids_flip %>% 
+  mutate(logFC_0 = kClustcentroids_flip$logFC_0,
+         logFC_0.5 = kClustcentroids_flip$logFC_0.5-0.216475668,
+         logFC_1 = kClustcentroids_flip$logFC_1-0.387528661,
+         logFC_3 = kClustcentroids_flip$logFC_3-0.630910269,
+         logFC_6 = kClustcentroids_flip$logFC_6-0.611814283,
+         logFC_8 = kClustcentroids_flip$logFC_8-0.738108935)
+
+
+
+
+
+
+
