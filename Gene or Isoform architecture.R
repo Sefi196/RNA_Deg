@@ -137,7 +137,7 @@ p1
 #Flip centroid data frame 
 kClustcentroids_flip <- as.data.frame(t(kClustcentroids))
 
-#subtract data 
+#subtract data of stable cluster - these values will cahnge depending on the centroids of the clsuter
 kClustcentroids_norm <- kClustcentroids_flip %>% 
   mutate(logFC_0 = kClustcentroids_flip$logFC_0,
          logFC_0.5 = kClustcentroids_flip$logFC_0.5-0.216475668,
