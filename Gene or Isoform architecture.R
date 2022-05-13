@@ -5,6 +5,9 @@ library(reshape2)
 library(tibble)
 library(tidyr)
 library(GenomicFeatures)
+library("FSA")
+library(rstatix)
+library("ggpubr")
 
 ############
 #GENE / Isoform architecture  
