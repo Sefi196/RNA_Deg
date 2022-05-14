@@ -281,7 +281,7 @@ df_plotting$type <- factor(df_plotting$type , levels=c("Up", "Stable", "Slow", "
 
 # Now we can plot 
 #boxplot GC
-pdf("GC content and decay.pdf", width = 6, height=3)
+pdf("GC_content_and_decay.pdf", width = 6, height=3)
 ggplot(df_plotting) +
   geom_boxplot(aes(type, GC, fill=type)) +
   ylab("GC (%)") +
@@ -300,9 +300,9 @@ ggplot(df_plotting) +
 dev.off()
 
 #boxplot 3UTR
-pdf("Updated_medain_UTRs_lengths3'UTR length and decay.pdf", width = 6, height=3)
+pdf("3'UTR_length_and_decay.pdf", width = 6, height=3)
 ggplot(df_plotting) +
-  geom_boxplot(aes(type, UTR3, fill=type),,  outlier.shape = NA) +
+  geom_boxplot(aes(type, UTR3, fill=type), outlier.shape = NA) +
   ylim(0,6000) +
   ylab("3'UTR (bp)") +
   xlab(NULL) +
@@ -320,7 +320,7 @@ ggplot(df_plotting) +
 dev.off()
 
 #boxplot 5UTR
-pdf("Updated_medain_UTRs_lengths_5'UTR length and decay.pdf", width = 6, height=3)
+pdf("5'UTR_length_and_decay.pdf", width = 6, height=3)
 ggplot(df_plotting) +
   geom_boxplot(aes(type, UTR5, fill=type),  outlier.shape = NA) +
   ylim(0,600) +
@@ -341,7 +341,7 @@ dev.off()
 
 #boxplot CDS 
 #Wont bother with this as its not in the figure
-pdf("CDS length and decay.pdf", width = 6, height=3)
+pdf("CDS_length_and_decay.pdf", width = 6, height=3)
 ggplot(df_plotting) +
   geom_boxplot(aes(type, CDS, fill=type),  outlier.shape = NA) +
   ylim(0,4000) +
@@ -361,7 +361,7 @@ ggplot(df_plotting) +
 dev.off()
 
 #boxplot Total Gene length
-pdf("Updated_medain_UTRs_lengths_Total Gene length and decay.pdf", width = 6, height=3)
+pdf("Gene_length_and_decay.pdf", width = 6, height=3)
 ggplot(df_plotting) +
   geom_boxplot(aes(type, median, fill=type), outlier.shape = NA) +
   ylim(0,10000) +
