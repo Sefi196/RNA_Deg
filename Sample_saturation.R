@@ -1,3 +1,7 @@
+#To Calcuate rareafaction cures per sample. 
+#can be done for DRS and/or cDNA 
+#inputs are count matrix for genes or isofroms
+
 main <- function() {
   
   args <- commandArgs(trailingOnly = TRUE)
@@ -12,17 +16,14 @@ main <- function() {
     library(Hmisc)
   })
   
+  message("Importing Count Matrix")
   #Import data 
   #Genes from NanoCount
-  setwd("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/20210729_ft_counts/29_July_feature_counts/")
   CountMatrix <- read.csv("ft.counts.csv", row.names = 1, header = T)
   
-  #GIsofroms from Feature counts 
-  setwd("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/NanoCount-0.4.0/")
-  CountMatrix <- read.csv("NanoCount.Count.Matrix.csv", row.names = 1, header = T)
+  #OR Isofroms from Feature counts 
+  #CountMatrix <- read.csv("NanoCount.Count.Matrix.csv", row.names = 1, header = T)
 
-  #CountMatrix <- read.csv(countdata, row.names = 1, header = T)
-  message("Importing Count Matrix")
   CountMatrix <- as.matrix(as.data.frame(CountMatrix))
   colnames(CountMatrix) <- c("TS12_RIN_9.9", "TS10_RIN_9.8", "TS11_RIN_9.7", "TS10_RIN_9.6","TS11_RIN_9.6", "TS10_RIN_9.3", "TS11_RIN_9.3", "TS11_RIN_8.9", "TS11_RIN_8.8", 
                              "TS10_RIN_8.4", "TS11_RIN_8.7", "TS12_RIN_8.2", "TS10_RIN_7.7", "TS12_RIN_7.3", "TS12_RIN_7.2"
@@ -72,7 +73,6 @@ main <- function() {
       dplyr::summarise(sum(count))
   } 
 
-
   #Preparing the data 
   #Use add sum function to merge replicates into one sample 
   temp <- add_sum_time(CountMatrix)
@@ -82,8 +82,7 @@ main <- function() {
   reverttoCountMatrix <-function(temp) {
     CountMatrix <- temp %>%
       tidyr::pivot_wider(names_from = "type", values_from = "sum(count)")
-    CountMatrix <- data.frame(CountMatrix, row.names = 1)
-    
+    CountMatrix <- data.frame(CountMatrix, row.names = 1) 
   }
   
   message("Preparing data")
@@ -159,7 +158,7 @@ main <- function() {
   
   plot.me_subfracs.dRNA <- filter(plot.me_subfracs, Method  == 'dRNA')
   
-  pdf(paste0(output, "RIN_.pdf"), width=8, height=5)
+  pdf(paste0(output, "RIN.pdf"), width=8, height=5)
   q1 <- ggplot(plot.me_subfracs,
              aes(x = nReadsGene, y = nGene, colour=sample, group = sample)) +
     geom_line(colour = "Black") + 
@@ -185,7 +184,7 @@ main <- function() {
   #To plot control vs very.low 
   plot.me_subfracs.dRNA <- filter(plot.me_subfracs, sample  == 'CONTROL' | sample  == 'VERY.LOW')
 
-  pdf(paste0(output, "time_.pdf"), width=8, height=5)
+  pdf(paste0(output, "time.pdf"), width=8, height=5)
   pdf("Isoforms_Saturation_dRNA.pdf", width=8, height=5) # run this for now but need to get rid for clean function
   q2 <- ggplot(plot.me_subfracs.dRNA,
                aes(x = nReadsGene, y = nGene, colour=Time, group = Time)) +
