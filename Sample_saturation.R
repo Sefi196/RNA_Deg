@@ -3,7 +3,7 @@
 #inputs are count matrix for genes or isoforms
 
 #Usage copy the Rscript from this repository and run it from the terminal as follows:
-#Rscript Sample_saturation.R count_data_file  out_prefix 
+#Rscript Sample_saturation.R count_data_file out_prefix 
 
 main <- function() {
   
