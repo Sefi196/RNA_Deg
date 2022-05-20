@@ -1,4 +1,4 @@
-#To Calcuate rareafaction cures per sample. 
+#To Calcuate rareafaction cures per timepoint. 
 #can be done for DRS and/or cDNA counts 
 #inputs are count matrix for genes or isofroms
 
