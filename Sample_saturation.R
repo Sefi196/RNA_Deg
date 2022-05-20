@@ -1,6 +1,6 @@
 #To Calcuate rareafaction cures per timepoint. 
 #can be done for DRS and/or cDNA counts 
-#inputs are count matrix for genes or isofroms
+#inputs are count matrix for genes or isoforms
 
 #Usage copy the Rscript from this repository and run it from the terminal as follows:
 #Rscript Sample_saturation.R count_data_file  out_prefix 
