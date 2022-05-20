@@ -20,12 +20,7 @@ main <- function() {
   })
   
   message("Importing Count Matrix")
-  #Import data 
-  #Genes from NanoCount
-  CountMatrix <- read.csv("ft.counts.csv", row.names = 1, header = T)
-  
-  #OR Isofroms from Feature counts 
-  #CountMatrix <- read.csv("NanoCount.Count.Matrix.csv", row.names = 1, header = T)
+  CountMatrix <- read.csv(countdata, row.names = 1, header = T)
 
   CountMatrix <- as.matrix(as.data.frame(CountMatrix))
   colnames(CountMatrix) <- c("TS12_RIN_9.9", "TS10_RIN_9.8", "TS11_RIN_9.7", "TS10_RIN_9.6","TS11_RIN_9.6", "TS10_RIN_9.3", "TS11_RIN_9.3", "TS11_RIN_8.9", "TS11_RIN_8.8", 
