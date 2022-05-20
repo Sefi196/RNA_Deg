@@ -1,6 +1,9 @@
 #To Calcuate rareafaction cures per sample. 
-#can be done for DRS and/or cDNA 
+#can be done for DRS and/or cDNA counts 
 #inputs are count matrix for genes or isofroms
+
+#Usage copy the Rscript from this repository and run it from the terminal as follows:
+#Rscript Sample_saturation.R count_data_file  out_prefix 
 
 main <- function() {
   
