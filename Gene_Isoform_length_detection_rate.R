@@ -1,9 +1,12 @@
 library(ggplot2)
 library(dplyr)
 
+#Count matrix can be Genes or isofrom and/or cDNA. 
 
-
+#set working directory 
 setwd("")
+
+#input count matrix
 CountMatrix <- read.csv("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/20210729_ft_counts/29_July_feature_counts/ft.counts.csv", row.names = 1, header = T)
 
 #CountMatrix <- read.csv("PCS110_dRNA_ft.counts.csv", row.names = 1, header = T)
@@ -17,9 +20,8 @@ colnames(CountMatrix) <- c("TS12_RIN_9.9", "TS10_RIN_9.8", "TS11_RIN_9.7", "TS10
 CountMatrix <- CountMatrix[ rowSums(CountMatrix[,-1]) > 0, ]
 
 
-
 message("Importing gene length")
-lengths <- read.csv("/Users/yairp/Documents/Ph.D/Genomes/lengths_GTFtools.gencode.v31.basic.annotation.csv", header=T)
+lengths <- read.csv("/lengths_GTFtools.gencode.v31.basic.annotation.csv", header=T)
 
 txltmp <- as.data.frame(CountMatrix) %>% 
   tibble::rownames_to_column("Gene.ID") %>%
@@ -35,7 +37,7 @@ Merged_lengths <- as.data.frame(merge(txltmp,lengths, by.x="Gene.ID", by.y="gene
 #Group lengths based breaks 
 #500bp breaks
 #Merged_lengths$bin_Lengths <- cut(Merged_lengths$median, breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 
- #                                                                   4000, 4500, 5001), right = FALSE, dig.lab = 5) 
+#                                                                   4000, 4500, 5001), right = FALSE, dig.lab = 5) 
 
 #750bp breaks
 #Merged_lengths$bin_Lengths <- cut(Merged_lengths$median, breaks = c(0, 750, 1500, 2250, 3000, 3750, 4500, 5250   
@@ -85,7 +87,7 @@ plot.me_lengths_genbasic <- dRNA %>%
   group_by(Time) %>%
   mutate(detRate = sum_var1/sum(sum_var1))
 
-#compare DRNA to cDNA
+#Run if comapring DRNA to cDNA 
 dRNAvcDNA_strat <- filter(Merged_lengths, Method  == 'cDNA' | sample  == 'CONTROL' | sample  == 'LOW')
 plot.me_lengths_cdNA_DRNA <- dRNAvcDNA_strat %>% 
   group_by(Method, Time, bin_Lengths) %>% 
@@ -94,32 +96,12 @@ plot.me_lengths_cdNA_DRNA <- dRNAvcDNA_strat %>%
   mutate(detRate = sum_var1/sum(sum_var1))
 
 
-message("Plotting Lengths vs detection rate") #proportion 
-
-pdf("Det_rate_cDNA_vsDRNA_Genes_750bp_barplot)by length.pdf", width=8, height=4) # run this for now but need to get rid for clean function
-ggplot(plot.me_lengths_cdNA_DRNA, aes(x = bin_Lengths , y = detRate)) + 
-  geom_bar(aes(fill =Method),
-           stat = "identity", position = position_dodge(0.85), width=0.8) + 
-  theme_bw() + 
-  #ylim(0,0.6) +
-  #scale_fill_manual(values = ds_colors, name = "") + 
-  facet_wrap(~ Time) + 
-  xlab("Gene length") + ylab("Detected Gene proportion") + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-  ggtitle("Genes Detected stratified by legnth (bp)") + 
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(
-    plot.title = element_text(color="black", size=20),
-    axis.title.x = element_text(color="black", size=14),
-    axis.title.y = element_text(color="black", size=14),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank()) +
-  theme(legend.title = element_blank())
-dev.off()
+#####
+Plotting Lengths vs detection rate
+#######
 
 
-pdf("Genes_stratified_length_750bp_barplot.pdf", width=8, height=4) # run this for now but need to get rid for clean function
+pdf("Genes_stratified_length_750bp_barplot.pdf", width=8, height=4)
 ggplot(plot.me_lengths_genbasic, aes(x = bin_Lengths , y = detRate)) + 
   geom_bar(aes(fill =Time),
            stat = "identity", position = position_dodge(0.85), width=0.8) + 
@@ -141,27 +123,7 @@ ggplot(plot.me_lengths_genbasic, aes(x = bin_Lengths , y = detRate)) +
   theme(legend.title = element_blank())
 dev.off()
 
-
-
-}  
-
-
-suppressWarnings(
-  main())
-
-
-write.csv(plot.me_lengths_genbasic, "Basic_1000bp_Detection_curves_forplotting_genes_median_length.csv" )
-
-plot.me_lengths_genbasic <- read.csv("Basic_1000bp_Detection_curves_forplotting_genes_median_length.csv")
-
-#plot.me_lengths_1$bin_Lengths <- factor(plot.me_lengths_1$bin_Lengths, levels = c('[0,750)','[750,1500)','[1500,2250)','[2250,3000)','[3000,3750)','[3750,4500)', '[4500,5250)'))
-
-plot.me_lengths_1$bin_Lengths <- factor(plot.me_lengths_1$bin_Lengths, levels = c('(0,1000]','(1000,2000]','(2000,3000]','(3000,4000]','(4000,5000]'))
-
-
-
-
-#thought we could drawing a line graph instead. Might be a bit clearer 
+#Plot line graph 
 pdf("1kb_Genes_Line_detection_curve_basic_gencode_gene_set_27_5_22.pdf", width=8, height=4)
 ggplot(plot.me_lengths_genbasic,
        aes(x = bin_Lengths, y =detRate, colour=Time, group = Time)) +
@@ -176,5 +138,36 @@ ggplot(plot.me_lengths_genbasic,
   ggtitle("Genes Detected stratified by legnth (bp)") + 
   theme(plot.title = element_text(hjust = 0.5))
 dev.off()
+
+
+#write data frame to working dir
+write.csv(plot.me_lengths_genbasic, "Basic_1000bp_Detection_curves_forplotting_genes_median_length.csv" )
+
+####
+#Run if comapring DRNA to cDNA 
+####
+
+pdf("Det_rate_cDNA_vsDRNA_Genes_750bp_barplot)by length.pdf", width=8, height=4) 
+ggplot(plot.me_lengths_cdNA_DRNA, aes(x = bin_Lengths , y = detRate)) + 
+  geom_bar(aes(fill =Method),
+           stat = "identity", position = position_dodge(0.85), width=0.8) + 
+  theme_bw() + 
+  #ylim(0,0.6) +
+  #scale_fill_manual(values = ds_colors, name = "") + 
+  facet_wrap(~ Time) + 
+  xlab("Gene length") + ylab("Detected Gene proportion") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  ggtitle("Genes Detected stratified by legnth (bp)") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(
+    plot.title = element_text(color="black", size=20),
+    axis.title.x = element_text(color="black", size=14),
+    axis.title.y = element_text(color="black", size=14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()) +
+  theme(legend.title = element_blank())
+dev.off()
+
 
 
