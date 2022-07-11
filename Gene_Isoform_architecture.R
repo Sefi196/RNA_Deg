@@ -393,6 +393,9 @@ Distinct.df_genes <- distinct(df_plotting, Gene.ID, .keep_all = TRUE)
 res.aov <- aov(GC ~ type, data = Distinct.df_genes)
 summary(res.aov)
 
+#ANOVA effect size
+eta_squared(res.aov, partial = FALSE)
+
 #PostHoc test
 TukeyHSD(res.aov, which = "type")  
 
