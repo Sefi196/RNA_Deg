@@ -6,6 +6,10 @@ library(ggplot2)
 library(d3heatmap)
 library(data.table)
 
+#Can be run for either 5y or Sequin counts 
+#Gene counts -> ft.counts
+#Isoform counts -> NanoCount
+
 #set the working dir
 #For Genens
 setwd("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/20210729_ft_counts/29_July_feature_counts/")
@@ -26,21 +30,17 @@ colnames(countdata) <- c("TS12_RIN_9.9", "TS10_RIN_9.8", "TS11_RIN_9.7", "TS10_R
 # This step is easy like below if samples from each condition are next to eachother in the matrix
 
 # Normal condition 
-Time_vecor <- (c(0, 0, 0, 0.5, 0.5, 1, 1, 3, 4, 3, 6, 6, 6, 8, 8)) 
 Time <- as.factor(c(rep("0", 3), rep("0.5", 2), rep("1", 2), rep("3_4", 3), rep("6", 3),rep("8", 2)))
 seq_batch <- as.factor(c(2, 1, 4, 1, 4, 1, 2, 4, 3, 3, 1, 3, 1, 2, 4))
-readdepth <- scale(c(908000, 1585058, 1180328, 1167903, 1306203, 1801455, 1336000, 1934774, 1692035, 1714306, 1946633, 1786398, 512234, 1148000, 1772222))
 RIN <- scale(c(9.9, 9.8, 9.7, 9.6, 9.6, 9.3, 9.3, 8.9, 8.8, 8.4, 8.7, 8.2, 7.7, 7.3, 7.2))
 extraction_batch <- as.factor(c(3, 1, 2, 1 , 2, 1, 2, 2, 2, 1, 2, 3, 1, 3, 3))
-test_factor <- c(1, 1, 3, 3 , 2, 2, 1, 2, 3, 1, 3, 2, 1, 3, 3)
 
 deseq1<-data.frame(Time,RIN,seq_batch,extraction_batch)
-
 
 # Make DESeq dataset
 (coldata <- data.frame(row.names=colnames(countdata), deseq1))
 dds <- DESeqDataSetFromMatrix(countData=countdata, colData=coldata, design= ~seq_batch + extraction_batch + Time)
-
+
 # Optional filtering step to remove very low counts
 #keep <- rowSums(counts(dds)) >= 50
 #dds <- dds[keep,]
@@ -52,7 +52,7 @@ dds <- estimateSizeFactors(dds)
 nc <- counts(dds, normalized=TRUE)
 filter <- rowSums(nc >= 10) >= 5
 dds <- dds[filter,]
-
+
 # running deseq with adjusted iterations to adress converagce issue 
 #dds <- estimateSizeFactors(dds)
 #dds <- estimateDispersions(dds)
@@ -78,9 +78,6 @@ table(res_T_0h_vs_1$padj<0.05)
 table(res_T_0h_vs_3_4$padj<0.05)
 table(res_T_0h_vs_6$padj<0.05)
 table(res_T_0h_vs_8$padj<0.05)
-
-
-
 
 # Normal conditions
 res <- DESeq2::results(dds)
@@ -174,15 +171,15 @@ write.csv(resdata_TTR_8, file="diff_transctipt_0h_vs_8h_full_model_No_RIN.csv")
 
 # Plot dispersions
 plotDispEsts(dds, main="Dispersion plot", genecol = "black", fitcol = "cyan", finalcol = "blue", legend = TRUE)
-
+
 # RLD for viewing
 rld <- rlogTransformation(dds)
 head(assay(rld))
 hist(assay(rld))
-
+
 # Plot residual p-values
 hist(res$pvalue, breaks=50, col="grey")
-
+
 #Set colours for plotting
 # for full set of all 15 samples
 mycols <- brewer.pal(8, "Accent")[1:length(unique(Time))]
@@ -195,7 +192,7 @@ heatmap.2(as.matrix(sampleDists), key=F, trace="none",
           ColSideColors=mycols[seq_batch], RowSideColors=mycols[extraction_batch],
           margin=c(10, 10), main="Sample Distance Matrix")
 dev.off()
-
+
 # PCA
 rld_pca <- function (rld, intgroup = "Time", ntop = 500, colors=NULL, main="Principal Component Analysis", textcx=1, ...) {
   require(genefilter)
@@ -251,44 +248,3 @@ volcanoplot <- function (res, lfcthresh=2, sigthresh=0.05, xlab="log2(Fold Chang
 pdf("diffexpr-volcanoplot-hi-res.pdf", 18, 18, pointsize=20)
 volcanoplot(resdata, lfcthresh=2, sigthresh=0.05, xlim=c(-7, 7), ylim=c(0,20), legendpos="topright")
 dev.off()
-
-#----Time Course example from deseq User guide ----
-
-ddsTC <- DESeqDataSetFromMatrix(countData=countdata, colData=coldata, design=~Time )
-
-#filter 
-# Optional filtering step to remove very low counts
-keep <- rowSums(counts(ddsTC)) >= 50
-ddsTC <- ddsTC[keep,]
-
-
-#filtering step to step to adress convergfance problem (found in bioconductor support) # only used for transcripts 
-# probaly too stringet as reads here evn at the gene count are low. 
-#filtering here means nc has to be greater than or equal to 10 in atleast 4 of the sa mples
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
-
-BiocManager::install("fission")
-
-library("fission")
-
-data("fission")
-ddsTC <- DESeqDataSet(fission, ~ strain + minute + strain:minute)
-head(ddsTC)
-
-ddsTC <- DESeq(ddsTC, test="LRT", reduced = ~strain + minute)
-resTC <- results(ddsTC)
-resTC$symbol <- mcols(ddsTC)$symbol
-head(resTC[order(resTC$padj),], 4)
-
-fiss <- plotCounts(ddsTC, which.min(resTC$padj), 
-                   intgroup = c("minute"), returnData = TRUE)
-fiss$minute <- as.numeric(as.character(fiss$minute))
-ggplot(fiss,
-       aes(x = minute, y = count)) + 
-  geom_point() + stat_summary(fun.y=mean, geom="line") +
-  scale_y_log10()
