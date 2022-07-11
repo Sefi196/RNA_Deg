@@ -35,6 +35,13 @@ seq_batch <- as.factor(c(2, 1, 4, 1, 4, 1, 2, 4, 3, 3, 1, 3, 1, 2, 4))
 RIN <- scale(c(9.9, 9.8, 9.7, 9.6, 9.6, 9.3, 9.3, 8.9, 8.8, 8.4, 8.7, 8.2, 7.7, 7.3, 7.2))
 extraction_batch <- as.factor(c(3, 1, 2, 1 , 2, 1, 2, 2, 2, 1, 2, 3, 1, 3, 3))
 
+#Sequin conditions 
+#Time <- as.factor(c(rep("T1", 3), rep("T6", 5)))
+#seq_batch <- as.factor(c(2, 1, 3, 1, 1, 2, 1, 1))
+#RIN <- scale(c(9.9, 9.8, 9.7, 9.6, 9.3, 9.3, 8.4, 7.7))
+#extraction_batch <- as.factor(c(3, 1, 2, 1, 1, 2, 1, 1))
+#deseq1<-data.frame(Time,RIN,seq_batch,extraction_batch)
+
 deseq1<-data.frame(Time,RIN,seq_batch,extraction_batch)
 
 # Make DESeq dataset
