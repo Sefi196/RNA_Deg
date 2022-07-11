@@ -69,6 +69,29 @@ Merged_lengths <- Merged_lengths %>% dplyr::mutate("sample" =
                                                                sample == "TS12_RIN_8.2_2_cDNA"  ~ 'LOW.cDNA',
                                                                sample == "TS10_RIN_7.7_cDNA"  ~ 'LOW.cDNA'))
 
+  #Define a function that will add Time as a col to my data frame 
+  add_time <- function(df) {
+    df %>% mutate(Time =
+                      case_when(sample == "CONTROL"  ~ '0 hours', 
+                                sample == "VERY.HIGH" ~ '0.5 hours',
+                                sample == "HIGH" ~ '1 hours',
+                                sample == "MID" ~ '3_4 hours',
+                                sample == "LOW" ~ '6 hours',
+                                sample == "VERY.LOW" ~ '8 hours',
+                                sample == "CONTROL.cDNA"  ~ '0 hours',
+                                sample == "LOW.cDNA" ~ '6 hours'
+                                )
+  )
+  }
+  
+  #Define a function that will add method i.e dRNA vs cDNA
+  add_method <- function(df) {
+    df %>% mutate(Method =
+                    case_when(grepl("cDNA", sample) ~ "cDNA",
+                              !grepl("cDNA", sample) ~ "dRNA"
+                              )) 
+  }
+
 message("adding Time")
 Merged_lengths <- add_time(Merged_lengths) 
 
