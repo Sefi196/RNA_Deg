@@ -12,11 +12,9 @@ library(data.table)
 
 #set the working dir
 #For Genens
-setwd("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/20210729_ft_counts/29_July_feature_counts/")
 countdata <- read.csv("ft.counts.csv", row.names = 1, header = T)
 
 #for Isoforms 
-setwd("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/NanoCount-0.4.0/")
 countdata <- read.csv("NanoCount.Count.Matrix.csv", row.names = 1, header = T)
 
 #to make as matric instead of df
