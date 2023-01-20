@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #Files
 dir="path_to_bams_aligned_to_transcriptome" 
