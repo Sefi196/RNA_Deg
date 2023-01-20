@@ -46,22 +46,11 @@ deseq1<-data.frame(Time,RIN,seq_batch,extraction_batch)
 (coldata <- data.frame(row.names=colnames(countdata), deseq1))
 dds <- DESeqDataSetFromMatrix(countData=countdata, colData=coldata, design= ~seq_batch + extraction_batch + Time)
 
-# Optional filtering step to remove very low counts
-#keep <- rowSums(counts(dds)) >= 50
-#dds <- dds[keep,]
-
-#filtering step to step to adress convergfance problem (found in bioconductor support) # only used for transcripts 
-# probaly too stringet as reads here evn at the gene count are low. 
-#filtering here means nc has to be greater than or equal to 10 in atleast 4 of the sa mples
+#filtering here means nc has to be greater than or equal to 10 in atleast 5 of the samples
 dds <- estimateSizeFactors(dds)
 nc <- counts(dds, normalized=TRUE)
 filter <- rowSums(nc >= 10) >= 5
 dds <- dds[filter,]
-
-# running deseq with adjusted iterations to adress converagce issue 
-#dds <- estimateSizeFactors(dds)
-#dds <- estimateDispersions(dds)
-#dds <- nbinomWaldTest(dds, maxit=500)
 
 # Run DESeq2 pipeline
 dds <- DESeq(dds)
@@ -69,7 +58,7 @@ dds <- DESeq(dds)
 #check the levels 
 resultsNames(dds)
 
-# will try and use contrast condition
+#contrast condition
 res_T_0h_vs_0.5 <- as.data.frame(results(dds, contrast = c("Time","0.5","0")))
 res_T_0h_vs_1 <- as.data.frame(results(dds, contrast = c("Time","1","0")))
 res_T_0h_vs_3_4 <- as.data.frame(results(dds, contrast = c("Time","3_4","0")))
@@ -91,39 +80,6 @@ res
 res <- res[order(res$padj), ]
 
 table(res$padj<0.05)
-
-#try plotting counts
-
-topGene <- rownames(res)[which.min(res$padj)] # without RIN in the model, the top gene is ENSG00000166598.15
-plotCounts(dds, gene = "ENSG00000166598.15", intgroup=c("Time"), transform = TRUE)
-
-for (i in 1:5) { 
-geneCounts <- plotCounts(dds, gene = rownames(res)[i], intgroup = c("Time"),
-                         returnData = TRUE, transform = TRUE)
-print(ggplot(geneCounts, aes(x = Time, y = count, group = "Time")) + 
-  geom_point() + geom_line() +
-  stat_summary(fun=mean, geom="line") +
-  scale_y_log10() +
-  theme_classic() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = i, size=5,
-       colour = "Time (h)"))
-}
-
-ggplot(geneCounts, aes(x = Time, y = count, group = "Time")) + 
-  geom_point() + stat_summary(fun=mean, geom="line") +
-  scale_y_log10() +
-  theme_classic() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = i, size=5,
-       colour = "Time (h)")
-
-geneCounts <- plotCounts(dds, gene = rownames(res)[1], intgroup = c("Time"),
-                         returnData = TRUE)
-
-ggplot(geneCounts, aes(x = Time, y = count, group = "Time")) + 
-        geom_point() + stat_summary(fun=mean, geom="line") +
-        scale_y_log10()
 
 
 # Save normalised counts separately 
@@ -155,17 +111,13 @@ resdata_TTR_8 <- merge(as.data.frame(res_T_0h_vs_8), as.data.frame(counts(dds, n
 resdata_seq <- merge(as.data.frame(res_seq), as.data.frame(counts(dds, normalized=TRUE)), by="row.names", sort=FALSE)
 names(resdata_seq)[1] <- "Gene_ID"
 
-
+#change col name
 names(resdata_TTR_0.5)[1] <- "Gene_ID"
 names(resdata_TTR_1)[1] <- "Gene_ID"
 names(resdata_TTR_3_4)[1] <- "Gene_ID"
 names(resdata_TTR_6)[1] <- "Gene_ID"
 names(resdata_TTR_8)[1] <- "Gene_ID"
 
-
-head(resdata_TG_0.5)
-
-summary(res1_T)
 
 # Write DE results 
 write.csv(resdata_TT_0.5, file="diff_transctipt_0h_vs_0.5h_Time.csv")
