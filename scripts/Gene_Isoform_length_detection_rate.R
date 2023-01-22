@@ -7,7 +7,7 @@ library(dplyr)
 setwd("")
 
 #input count matrix
-CountMatrix <- read.csv("~/Documents/Ph.D/RNA_degradation_study/Deseq_15_samples/20210729_ft_counts/29_July_feature_counts/ft.counts.csv", row.names = 1, header = T)
+CountMatrix <- read.csv("ft.counts.csv", row.names = 1, header = T)
 
 #CountMatrix <- read.csv("PCS110_dRNA_ft.counts.csv", row.names = 1, header = T)
 
