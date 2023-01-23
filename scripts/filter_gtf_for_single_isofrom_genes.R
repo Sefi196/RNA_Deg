@@ -41,7 +41,7 @@ gene_file <- singel_isofrom$gene_id
 gff_filtered <- gff_annot %>%
   dplyr::filter(gene_id %in% genes_to_filter)
 
-#need the (1,2,3) and the gene only
+#need the gene loaction so col (1,2,3)
 
 bed <- dplyr::filter(gff_filtered, , type == "gene") %>%
   dplyr::select(1,2,3)
@@ -49,3 +49,5 @@ bed <- dplyr::filter(gff_filtered, , type == "gene") %>%
 write.table(bed, "single_isoform_position.bed", row.names = FALSE, quote = FALSE,sep="\t")
 write.csv(single_isoform$tx_name, "single_isoform_genes_ENST.csv", row.names = FALSE, quote = FALSE)
 write.table(singel_isofrom$gene_id, "single_isform_gene.list.csv", row.names = FALSE, quote = FALSE,sep="\t")
+
+#can now use the bed file for single_isoform_gene_body_coverage.sh script
