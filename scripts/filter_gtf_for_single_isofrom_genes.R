@@ -7,8 +7,11 @@ library(devtools)
 #1. list of singe isofrom genes and trabscript names for filtering BamSLAM output. 
 #2. bed file with gene coordiantes 
 
+#gtf file
+gff_file <- "pathto_gencode.v31.annotation.gtf"
+
 # read in gtf and pull length data
-txs <- makeTxDbFromGFF("gencode.v31.annotation.gtf", format="gtf")
+txs <- makeTxDbFromGFF(gtf_file, format="gtf")
 txLengths <- transcriptLengths(txs, with.cds_len=TRUE, with.utr5_len=TRUE, with.utr3_len=TRUE)
 lengths <- data.frame(txLengths$tx_name, txLengths$tx_len)
 
@@ -26,8 +29,6 @@ single_isoform_gene_plotme <- merge(single_isoform, bamSLAM_output.csv, by.x="tx
 ########
 #get bed file
 #######
-
-gff_file <- "pathto_gencode.v31.annotation.gtf"
 
 gff_annot <- rtracklayer::import(gff_file) %>%
   as.data.frame() %>%
