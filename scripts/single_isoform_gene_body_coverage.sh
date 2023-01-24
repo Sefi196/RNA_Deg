@@ -23,6 +23,4 @@ done
 
 
 bed_RSEQC="path_to_hg38_Gencode_V24.bed"
-bams=""
-
 geneBody_coverage.py -r ${bed_RSEQC} -i ${output} -o /data/gpfs/projects/punim1441/Project_dRNA_deg/single_isoform_bams/RSEQC/single_isoform_genes
