@@ -234,7 +234,7 @@ Write.csv(LFC_K_merged, "LFC_K_merged_cluster.csv")
 ##################
 
 #read in GC content per gene info here
-GC <- read.csv("/Users/yairp/Documents/Ph.D/RNA_degradation_study/Deg_const/GC_gene_type_biomart_all.csv", header=T)
+GC <- read.csv("GC_gene_type_biomart_all.csv", header=T)
 
 # to remove the dots after the ENSG 
 LFC_K_merged$Gene.ID <- sub("\\.[^.]*$", "", LFC_K_merged$Gene.ID)
@@ -242,9 +242,9 @@ LFC_K_merged$Gene.ID <- sub("\\.[^.]*$", "", LFC_K_merged$Gene.ID)
 # merge GC and LFC data togehter  
 LFC_K_norm_GC <- merge(LFC_K_merged,GC, by.x="Gene.ID", by.y="Gene.ID", all.x=TRUE)
   
-#Use basic GTF to pull out length of gene features of interest   
+#Use GTF to pull out length of gene features of interest   
 # Make the txdb
-txs <- makeTxDbFromGFF("~/Documents/Ph.D/Genomes/gencode.v31.basic.annotation.gtf", format="gtf")
+txs <- makeTxDbFromGFF("gencode.v31.annotation.gtf", format="gtf")
 txLengths <- transcriptLengths(txs, with.cds_len=TRUE, with.utr5_len=TRUE, with.utr3_len=TRUE)
 lengths <- data.frame(txLengths$tx_name, txLengths$tx_len)
 gene_lengths <- data.frame(txLengths$gene_id, txLengths$tx_len, txLengths$cds_len, txLengths$utr5_len, txLengths$utr3_len)
