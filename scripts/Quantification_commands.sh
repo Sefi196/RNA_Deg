@@ -15,7 +15,7 @@ done
 #Command used for quatifaction with Salmon. 
 
 for file in "$dir"/*.bam; do
-  salmon quant -p 8 -t ${transcripts.fa} -l A -a ${file} -o ${file##*/} --noEffectiveLengthCorrection
+  salmon quant -p 8 -t ${transcripts.fa} -l A -a ${file} -o ${file##*/} --ont
 done
 
 #Command used for quatifaction with feature counts. 
