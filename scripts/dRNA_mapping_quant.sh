@@ -2,7 +2,6 @@
 # direct RNA/cDNA pipeline plus sequins
 
 # Wrap script in PBS/slurm with:
-#for f in diff1 diff2tr1 diff2tr2 diff3 undiff1 undiff2
 #do
 #echo "Procseeing $f"
 #./dRNA.sh sample_genome.fasta sample_transcriptome.fasta sample_annotation.gtf sequin_genome.fasta sequin_transcriptonme.fasta sequin_annotation.gtf $f/pass.fastq $f"_output"
