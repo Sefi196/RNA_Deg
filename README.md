@@ -1,3 +1,7 @@
+[![Generic badge](https://img.shields.io/badge/Publication-https://doi.org/10.1093/nargab/lqad060-green.svg)]([https://example.com/publication](https://academic.oup.com/nargab/article/5/2/lqad060/7192649))
+
+
+
 # Pervasive effects of RNA degradation on Nanopore direct RNA sequencing
 
 
