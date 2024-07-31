@@ -1,4 +1,5 @@
-[![Generic badge](https://img.shields.io/badge/Publication-https://doi.org/10.1093/nargab/lqad060-green.svg)]([https://example.com/publication](https://academic.oup.com/nargab/article/5/2/lqad060/7192649))
+[![Generic badge](https://img.shields.io/badge/Publication-DOI%3A10.1093%2Fnargab%2Flqad060-green.svg)](https://academic.oup.com/nargab/article/5/2/lqad060/7192649)
+
 
 
 
